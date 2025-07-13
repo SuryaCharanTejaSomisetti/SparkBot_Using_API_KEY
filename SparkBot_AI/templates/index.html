@@ -1,0 +1,73 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SparkBot</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="app">
+
+    <!-- ☰ Menu toggle button (visible on all screens now) -->
+    <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="logo">🤖 SparkBot </div>
+      <a href="{{ url_for('new_chat') }}" class="btn">+ New Chat</a>
+
+      <div class="history">
+        {% for chat in chats %}
+          <a href="{{ url_for('chat', chat_id=chat.id) }}" class="history-link">{{ chat.title }}</a>
+        {% endfor %}
+      </div>
+
+      <div class="footer">
+        <!-- 🗑 Delete History Form -->
+        <form method="POST" action="{{ url_for('delete_history') }}">
+          <button type="submit" class="btn delete-btn">🗑 Delete History</button>
+        </form>
+
+        <p>Hello, {{ username }} | <a href="{{ url_for('logout') }}">Logout</a></p>
+      </div>
+    </aside>
+
+    <!-- Main Chat Window -->
+    <main class="chat-window">
+      <!-- ✅ Changed here -->
+      <header class="chat-header">New Chat</header>
+
+      <div class="chat-body" id="chat-body">
+        {% for msg in current_chat.messages %}
+          {% if msg.user %}
+            <div class="message user"><div class="bubble">{{ msg.user }}</div></div>
+          {% endif %}
+          {% if msg.bot %}
+            <div class="message bot"><div class="bubble">{{ msg.bot }}</div></div>
+            <!-- Optional: Remove timestamp line below if you don't want it -->
+            <div class="timestamp">{{ loop.index0 | timestamp }}</div>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <form class="chat-form" method="POST" action="{{ url_for('send', chat_id=current_chat.id) }}">
+        <input type="text" name="msg" placeholder="Type a message..." autocomplete="off" required />
+        <button type="submit">Send</button>
+      </form>
+    </main>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    const chatBody = document.getElementById("chat-body");
+    chatBody.scrollTop = chatBody.scrollHeight;
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      sidebar.classList.toggle("collapsed");
+    }
+  </script>
+</body>
+</html>
